@@ -22,18 +22,18 @@
                 </div>
                 <div>
                     <strong>Last Active:</strong>
-                    <p>{{member.lastActive}}</p>
+                    <p>{{member.lastActive + 'Z' | timeago}}</p>
                 </div>
                 <div>
                     <strong>Member Since:</strong>
-                    <p>{{member.created}}</p>
+                    <p>{{member.created | date: 'longDate'}}</p>
                 </div>
             </div>
             <div class="card-footer">
                 <button type="submit" 
                     form="editForm" 
                     [disabled]="!editForm.dirty"
-                    class="btn btn-success col-12">Save Changes</button>
+                    class="btn btn-info col-12">Save Changes</button>
             </div>
         </div>
     </div>
@@ -62,9 +62,9 @@
                     </textarea>
                     <h4 class="mt-2">Location Details:</h4>
                     <div class="d-flex flex-row align items center">
-                        <label for="city">City: </label>
+                        <label for="city" class="form-label mt-1">City: </label>
                         <input type="text" [(ngModel)]="member.city" name="city" class="form-control mx-2">
-                        <label for="country">Country: </label>
+                        <label for="country" class="form-label mt-1">Country: </label>
                         <input type="text" [(ngModel)]="member.country" name="country" class="form-control mx-2">
                     </div>
                 </form>
