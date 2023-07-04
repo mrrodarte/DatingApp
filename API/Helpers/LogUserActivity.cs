@@ -18,7 +18,7 @@ namespace API.Helpers
             var repo = resultContext.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
 
             //set last active on the user and save changes
-            var user = await repo.GetUserByIdAsync(int.Parse(userid));
+            var user = await repo.GetUserByIdAsync(userid);
             user.LastActive = DateTime.UtcNow;
             await repo.SaveAllAsync();
         }

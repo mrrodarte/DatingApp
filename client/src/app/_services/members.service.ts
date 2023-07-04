@@ -19,18 +19,15 @@ export class MembersService {
   userParams: UserParams | undefined;
   
   constructor(private http: HttpClient,
-              private accountService: AccountService) { 
-    this.accountService.currentUser$.pipe(take(1)).subscribe({
-      next: user => {
-        if (user) {
-          this.userParams = new UserParams(user);
-          this.user = user;
-        }
-      }
-    })
+              public accountService: AccountService) { 
+    this.setCurrentUserAccountService();
   }
   
   getUserParams(){
+    //if previous user has logged out, then we need to reset userParams for new user
+    if(this.accountService.loggedOutResetParams){
+      return this.resetUserParams();
+    }
     return this.userParams;
   }
 
@@ -40,10 +37,23 @@ export class MembersService {
 
   resetUserParams(){
     if (this.user){
-      this.userParams = new UserParams(this.user);
+      //this.userParams = new UserParams(this.user);
+      this.setCurrentUserAccountService();
       return this.userParams;
     }
     return;
+  }
+
+  //We also need to get the new user from account service, since userParams depend on user gender
+  setCurrentUserAccountService(){
+    this.accountService.currentUser$.pipe(take(1)).subscribe({
+      next: user => {
+        if (user) {
+          this.userParams = new UserParams(user);
+          this.user = user;
+        }
+      }
+    })
   }
 
   getMembers(userParams: UserParams) {
@@ -91,6 +101,17 @@ export class MembersService {
 
   deletePhoto(photoId: number){
     return this.http.delete(this.baseUrl + 'users/delete-photo/' + photoId);
+  }
+
+  addLike(username: string){
+    return this.http.post(this.baseUrl + 'likes/' + username, {});
+  }
+
+  getLikes(predicate: string, pageNumber: number, pageSize: number){
+    let params = this.getPaginationHeaders(pageNumber,pageSize);
+    params = params.append('predicate',predicate);
+
+    return this.getPaginatedResults<Member[]>(this.baseUrl + 'likes?',params);
   }
 
   private getPaginatedResults<T>(url: string, params: HttpParams) {

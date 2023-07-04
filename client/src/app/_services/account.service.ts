@@ -9,6 +9,9 @@ import { environment } from 'src/environments/environment';
 })
 export class AccountService {
   baseUrl = environment.apiUrl;
+  // if user logs out we need a flag to reset the stored member service user params
+  loggedOutResetParams: boolean = false; 
+  
   private currentUserSource = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSource.asObservable();
   constructor(private http:HttpClient) { }
@@ -39,6 +42,7 @@ export class AccountService {
   }
 
   logout(){
+    this.loggedOutResetParams = true;
     localStorage.removeItem('user');
     this.currentUserSource.next(null);
   }
