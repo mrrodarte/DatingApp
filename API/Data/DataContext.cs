@@ -14,10 +14,13 @@ namespace API.Data
         //Set up the UserLike for Many to Many Relationship
         public DbSet<UserLike> Likes {get; set; }
 
+        public DbSet<Message> Messages {get; set;}
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
+            //Configure UserLikes entities
             builder.Entity<UserLike>()
                 .HasKey(k => new {k.SourceUserId, k.TargetUserId});
 
@@ -33,6 +36,20 @@ namespace API.Data
                 .WithMany(l => l.LikedByUsers)
                 .HasForeignKey(s => s.TargetUserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //Configure Messages entities
+            ///First side of relationship
+            builder.Entity<Message>()
+                .HasOne(u => u.Recepient)
+                .WithMany(m => m.MessagesReceived)
+                .OnDelete(DeleteBehavior.Restrict);
+            ///Second side of relationship
+            builder.Entity<Message>()
+                .HasOne(u => u.Sender)
+                .WithMany(m => m.MessagesSent)
+                .OnDelete(DeleteBehavior.Restrict);
+
+           
         }
     }
 }
