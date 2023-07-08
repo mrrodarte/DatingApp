@@ -2,6 +2,7 @@ using API.Data;
 using API.Entities;
 using API.Extensions;
 using API.Middleware;
+using API.SignalR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -18,13 +19,18 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 //  Application Middleware for Exception Handling in One Place
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod()
+app.UseCors(builder => builder
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials()
     .WithOrigins("https://localhost:4200"));
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<MessageHub>("hubs/message");
 
 //Create and Seed the Data if needed
 using var scope = app.Services.CreateScope();
@@ -34,6 +40,8 @@ try{
     var userMananger = services.GetRequiredService<UserManager<AppUser>>();
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
     await context.Database.MigrateAsync();
+    //clear the connections if app closes outside the normal workflow
+    await context.Database.ExecuteSqlRawAsync("DELETE FROM [Connections]"); 
     await Seed.SeedUsers(userMananger, roleManager);
 }
 catch (Exception ex)
