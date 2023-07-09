@@ -56,10 +56,5 @@ namespace API.Data
                 .Include(x => x.LikedUsers)
                 .FirstOrDefaultAsync(x => x.Id == userId);
         }
-
-        public async Task<bool> SaveAllAsync()
-        {
-            return await _context.SaveChangesAsync() > 0;
-        }
     }
 }
