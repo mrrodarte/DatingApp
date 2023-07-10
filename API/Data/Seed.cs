@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using API.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +6,12 @@ using Microsoft.AspNetCore.Identity;
 namespace API.Data
 {
     public class Seed
-    {
+    { 
+        //remove connections here instead of program
+        public static async Task ClearConnections(DataContext context)
+        {
+            await context.Database.ExecuteSqlRawAsync("DELETE FROM \"Connections\""); 
+        }
         public static async Task SeedUsers(UserManager<AppUser> userManager, 
             RoleManager<AppRole> roleManager)
         {
@@ -35,6 +38,8 @@ namespace API.Data
             foreach (var user in users)
             {
                 user.UserName = user.UserName.ToLower();
+                user.Created = DateTime.SpecifyKind(user.Created, DateTimeKind.Utc);
+                user.LastActive = DateTime.SpecifyKind(user.LastActive, DateTimeKind.Utc);
                 await userManager.CreateAsync(user, "Pa$$w0rd");
                 await userManager.AddToRoleAsync(user, "Member");
             }

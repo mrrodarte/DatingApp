@@ -475,4 +475,8 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+client/ssl/server.key
+client/ssl/server.crt
+API/Properties/launchSettings.json
+API/appsettings.Development.json
 API/appsettings.json
