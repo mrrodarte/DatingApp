@@ -480,3 +480,4 @@ client/ssl/server.crt
 API/Properties/launchSettings.json
 API/appsettings.Development.json
 API/appsettings.json
+fly.toml
