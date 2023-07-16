@@ -15,6 +15,7 @@ builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 
 
+//Database connection setup
 var connString = "";
 if (builder.Environment.IsDevelopment())
     connString = builder.Configuration.GetConnectionString("DefaultConnections");
@@ -43,8 +44,6 @@ builder.Services.AddDbContext<DataContext>(opt =>
 });
 
 
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -56,6 +55,7 @@ app.UseCors(builder => builder
     .AllowCredentials()
     .WithOrigins("https://localhost:4200"));
 
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
