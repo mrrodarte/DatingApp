@@ -5,6 +5,7 @@ using API.Middleware;
 using API.SignalR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -16,6 +17,11 @@ builder.Services.AddControllers();
 builder.Services.AddApiVersioning(opt => {
     opt.AssumeDefaultVersionWhenUnspecified = true;
     opt.DefaultApiVersion = new ApiVersion(1,0);
+    opt.ApiVersionReader = ApiVersionReader.Combine(
+        new HeaderApiVersionReader("api-version"),
+        new QueryStringApiVersionReader("api-version")
+    );
+    //opt.ApiVersionReader = new HeaderApiVersionReader("verion-header");
     opt.ReportApiVersions = true;
 });
 builder.Services.AddApplicationServices(builder.Configuration);
