@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
+    [ApiVersion("1.0")]
+    [ApiVersion("1.1")]
     [Authorize]
     public class UsersController : BaseApiController
     {
@@ -26,11 +28,11 @@ namespace API.Controllers
             _photoService = photoService;
             _uow = uow;
             _mapper = mapper;
-            
+
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery]UserParams userParams)
+        public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
         {
             var gender = await _uow.UserRepository.GetUserGender(User.GetUserName());
             userParams.CurrentUsername = User.GetUserName();
@@ -43,7 +45,7 @@ namespace API.Controllers
             var users = await _uow.UserRepository.GetMembersAsync(userParams);
 
             Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage,
-                users.PageSize,users.TotalCount,users.TotalPages));
+                users.PageSize, users.TotalCount, users.TotalPages));
 
             return Ok(users);
         }
@@ -51,13 +53,20 @@ namespace API.Controllers
         [HttpGet("{username}")]
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
-           return await _uow.UserRepository.GetMemberAsync(username);
+            return await _uow.UserRepository.GetMemberAsync(username);
+        }
+
+        [HttpGet("{username}")]
+        [MapToApiVersion("1.1")]
+        public ActionResult GetUserV1(string username)
+        {
+            return Ok($"Hi {username} this is version 1.1 not implemented yet");
         }
 
         [HttpPut]
         public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
         {
-           var user = await _uow.UserRepository.GetUserByUserNameAsync(User.GetUserName());
+            var user = await _uow.UserRepository.GetUserByUserNameAsync(User.GetUserName());
 
             if (user == null) return NotFound();
 
@@ -79,7 +88,8 @@ namespace API.Controllers
 
             if (result.Error != null) return BadRequest(result.Error.Message);
 
-            var photo = new Photo{
+            var photo = new Photo
+            {
                 Url = result.SecureUrl.AbsoluteUri,
                 PublicId = result.PublicId
             };
@@ -88,10 +98,10 @@ namespace API.Controllers
 
             user.Photos.Add(photo);
 
-            if (await _uow.Complete()) 
+            if (await _uow.Complete())
             {
-                return CreatedAtAction(nameof(GetUser), 
-                    new {username = user.UserName} , _mapper.Map<PhotoDto>(photo));
+                return CreatedAtAction(nameof(GetUser),
+                    new { username = user.UserName }, _mapper.Map<PhotoDto>(photo));
             }
 
             return BadRequest("Problem adding photo.");
