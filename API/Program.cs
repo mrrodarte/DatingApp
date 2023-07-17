@@ -21,7 +21,6 @@ builder.Services.AddApiVersioning(opt => {
         new HeaderApiVersionReader("api-version"),
         new QueryStringApiVersionReader("api-version")
     );
-    //opt.ApiVersionReader = new HeaderApiVersionReader("verion-header");
     opt.ReportApiVersions = true;
 });
 builder.Services.AddApplicationServices(builder.Configuration);
