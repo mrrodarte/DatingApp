@@ -1,3 +1,5 @@
+using System.Runtime.Serialization.DataContracts;
+using System.Text.Json;
 using API.Data;
 using API.Entities;
 using API.Extensions;
@@ -5,6 +7,7 @@ using API.Middleware;
 using API.SignalR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -12,11 +15,21 @@ using Microsoft.EntityFrameworkCore.Metadata;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers(configure =>
+{
+    configure.ReturnHttpNotAcceptable = true;
+    //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+}).AddXmlDataContractSerializerFormatters()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    });
+    
 // Set up Api versioning
-builder.Services.AddApiVersioning(opt => {
+builder.Services.AddApiVersioning(opt =>
+{
     opt.AssumeDefaultVersionWhenUnspecified = true;
-    opt.DefaultApiVersion = new ApiVersion(1,0);
+    opt.DefaultApiVersion = new ApiVersion(1, 0);
     opt.ApiVersionReader = ApiVersionReader.Combine(
         new HeaderApiVersionReader("api-version"),
         new QueryStringApiVersionReader("api-version")
@@ -46,7 +59,7 @@ else
     var pgPass = pgUserPass.Split(":")[1];
     var pgHost = pgHostPort.Split(":")[0];
     var pgPort = pgHostPort.Split(":")[1];
-    var updatedHost = pgHost.Replace("flycast","internal");
+    var updatedHost = pgHost.Replace("flycast", "internal");
 
     connString = $"Server={updatedHost};Port={pgPort};User Id={pgUser};Password={pgPass};Database={pgDb};";
 }
@@ -75,15 +88,19 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();
+
+//SignalR to build online presence or an online message service
 app.MapHub<PresenceHub>("hubs/presence");
 app.MapHub<MessageHub>("hubs/message");
 
+//Fallback to the index when its running the release built
 app.MapFallbackToController("Index", "Fallback");
 
 //Create and Seed the Data if needed
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
-try{
+try
+{
     var context = services.GetRequiredService<DataContext>();
     var userMananger = services.GetRequiredService<UserManager<AppUser>>();
     var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
