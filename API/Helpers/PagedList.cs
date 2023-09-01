@@ -1,9 +1,15 @@
+using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Helpers
 {
     public class PagedList<T> : List<T>
     {
+        //Default constructor for xml responses
+        public PagedList()
+        {
+        }
+
         public PagedList(IEnumerable<T> items, int count, int pageNumber, int pageSize)
         {
             CurrentPage = pageNumber;

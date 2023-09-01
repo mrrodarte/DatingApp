@@ -18,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(configure =>
 {
     configure.ReturnHttpNotAcceptable = true;
+    configure.RespectBrowserAcceptHeader = true;
     //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
 }).AddXmlDataContractSerializerFormatters()
     .AddJsonOptions(opt =>
