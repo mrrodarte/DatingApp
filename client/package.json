@@ -9,6 +9,9 @@
     "test": "ng test"
   },
   "private": true,
+  "overrides": {
+    "tmp": "^0.2.6"
+  },
   "dependencies": {
     "@angular/animations": "^14.2.0",
     "@angular/common": "^14.2.0",
